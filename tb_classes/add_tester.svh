@@ -14,9 +14,10 @@
    limitations under the License.
 */
 class add_tester extends random_tester;
-
-   function new (virtual tinyalu_bfm b);
-      super.new(b);
+   `uvm_component_utils(add_tester)
+         
+   function new (string name, uvm_component parent);
+      super.new(name, parent);
    endfunction : new
 
    function operation_t get_op();
