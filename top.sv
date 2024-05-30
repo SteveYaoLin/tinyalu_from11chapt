@@ -26,7 +26,6 @@ module top;
 
 
 initial begin
-   tinyalu_pkg::bfm_g = bfm;
    uvm_config_db #(virtual tinyalu_bfm)::set(null, "*", "bfm", bfm);
    run_test();
 end

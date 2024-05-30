@@ -22,16 +22,16 @@ class scoreboard extends uvm_component;
       super.new(name, parent);
    endfunction : new
 
-function void build_phase(uvm_phase phase);
-
- if(!uvm_config_db #(virtual tinyalu_bfm)::get(null, "*","bfm", bfm))
+   function void build_phase(uvm_phase phase);
+      if(!uvm_config_db #(virtual tinyalu_bfm)::get(null, "*","bfm", bfm))
         $fatal("Failed to get BFM");
-endfunction : build_phase
+   endfunction : build_phase
 
    task run_phase(uvm_phase phase);
       shortint predicted_result;
+      ;
       forever begin : self_checker
-         @(posedge bfm.done) 
+         @(posedge bfm.done)
 	   #1;
            case (bfm.op_set)
              add_op: predicted_result = bfm.A + bfm.B;

@@ -24,13 +24,13 @@ package tinyalu_pkg;
                           mul_op = 3'b100,
                           rst_op = 3'b111} operation_t;
 
-   virtual tinyalu_bfm bfm_g;
-   
 
 `include "coverage.svh"
-`include  "random_tester.svh"
+`include "base_tester.svh"
+`include "random_tester.svh"
 `include "add_tester.svh"   
 `include "scoreboard.svh"
+`include "env.svh"
 `include "random_test.svh"
 `include "add_test.svh"
    

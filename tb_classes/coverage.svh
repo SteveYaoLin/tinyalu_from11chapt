@@ -101,11 +101,10 @@ endgroup
       zeros_or_ones_on_ops = new();
    endfunction : new
 
-function void build_phase(uvm_phase phase);
-
- if(!uvm_config_db #(virtual tinyalu_bfm)::get(null, "*","bfm", bfm))
-        $fatal("Failed to get BFM");
-endfunction : build_phase
+   function void build_phase(uvm_phase phase);
+      if(!uvm_config_db #(virtual tinyalu_bfm)::get(null, "*","bfm", bfm))
+	$fatal("Failed to get BFM");
+   endfunction : build_phase
 
    task run_phase(uvm_phase phase);
       forever begin  : sampling_block
