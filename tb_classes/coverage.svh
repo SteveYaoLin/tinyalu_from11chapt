@@ -13,10 +13,10 @@
    See the License for the specific language governing permissions and
    limitations under the License.
 */
-class coverage;
+class coverage extends uvm_component;
+   `uvm_component_utils(coverage)
 
    virtual tinyalu_bfm bfm;
-
 
    byte         unsigned        A;
    byte         unsigned        B;
@@ -94,15 +94,20 @@ class coverage;
 
 endgroup
 
-   function new (virtual tinyalu_bfm b);
-     op_cov = new();
-     zeros_or_ones_on_ops = new();
-     bfm = b;
+
+   function new (string name, uvm_component parent);
+      super.new(name, parent);
+      op_cov = new();
+      zeros_or_ones_on_ops = new();
    endfunction : new
 
+function void build_phase(uvm_phase phase);
 
+ if(!uvm_config_db #(virtual tinyalu_bfm)::get(null, "*","bfm", bfm))
+        $fatal("Failed to get BFM");
+endfunction : build_phase
 
-   task execute();
+   task run_phase(uvm_phase phase);
       forever begin  : sampling_block
          @(negedge bfm.clk);
          A = bfm.A;
@@ -111,7 +116,7 @@ endgroup
          op_cov.sample();
          zeros_or_ones_on_ops.sample();
       end : sampling_block
-   endtask : execute
+   endtask : run_phase
 
 endclass : coverage
 
