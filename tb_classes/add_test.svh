@@ -13,21 +13,19 @@
    See the License for the specific language governing permissions and
    limitations under the License.
 */
-class add_test extends random_test;
+class add_test extends uvm_test;
    `uvm_component_utils(add_test);
 
-   add_tester tester_h;
+   env       env_h;
 
+   function void build_phase(uvm_phase phase);
+      base_tester::type_id::set_type_override(add_tester::get_type());
+      env_h = env::type_id::create("env_h",this);
+   endfunction : build_phase
+   
    function new (string name, uvm_component parent);
       super.new(name,parent);
    endfunction : new
 
-   function void build_phase(uvm_phase phase);
-      tester_h      = new("tester_h", this);
-      coverage_h    = new("coverage_h",    this);
-      scoreboard_h  = new("scoreboard_h",    this);
-   endfunction
-
 endclass
-
-
+   
