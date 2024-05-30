@@ -13,17 +13,25 @@
    See the License for the specific language governing permissions and
    limitations under the License.
 */
-class scoreboard;
-      virtual tinyalu_bfm bfm;
+class scoreboard extends uvm_component;
+   `uvm_component_utils(scoreboard);
 
-   function new (virtual tinyalu_bfm b);
-     bfm = b;
+   virtual tinyalu_bfm bfm;
+
+   function new (string name, uvm_component parent);
+      super.new(name, parent);
    endfunction : new
 
-   task execute();
+function void build_phase(uvm_phase phase);
+
+ if(!uvm_config_db #(virtual tinyalu_bfm)::get(null, "*","bfm", bfm))
+        $fatal("Failed to get BFM");
+endfunction : build_phase
+
+   task run_phase(uvm_phase phase);
       shortint predicted_result;
       forever begin : self_checker
-         @(posedge bfm.done)
+         @(posedge bfm.done) 
 	   #1;
            case (bfm.op_set)
              add_op: predicted_result = bfm.A + bfm.B;
@@ -36,11 +44,8 @@ class scoreboard;
            if (predicted_result != bfm.result)
              $error ("FAILED: A: %0h  B: %0h  op: %s result: %0h",
                      bfm.A, bfm.B, bfm.op_set.name(), bfm.result);
-         
       end : self_checker
-   endtask : execute
-   
-   
+   endtask : run_phase
 endclass : scoreboard
 
 
