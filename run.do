@@ -23,7 +23,7 @@ vcom -f dut.f
 
 vlog -f tb.f
 vopt top -o top_optimized  +acc +cover=sbfec+tinyalu(rtl).
-vsim top_optimized -coverage +UVM_TESTNAME=$case1 -l $case1.log
+vsim top_optimized -coverage +UVM_TESTNAME=$case1 +UVM_VERBOSITY=UVM_DEBUG -l $case1.log
 set NoQuitOnFinish 1
 onbreak {resume}
 log /* -r
