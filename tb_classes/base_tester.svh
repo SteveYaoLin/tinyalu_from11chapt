@@ -23,6 +23,7 @@ class base_tester extends uvm_component;
    virtual tinyalu_bfm bfm;
 
    function void build_phase(uvm_phase phase);
+      
       if(!uvm_config_db #(virtual tinyalu_bfm)::get(null, "*","bfm", bfm))
         $fatal("Failed to get BFM");
    endfunction : build_phase

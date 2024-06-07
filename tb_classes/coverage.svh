@@ -13,10 +13,8 @@
    See the License for the specific language governing permissions and
    limitations under the License.
 */
-class coverage extends uvm_component;
+class coverage extends uvm_subscriber #(command_s);
    `uvm_component_utils(coverage)
-
-   virtual tinyalu_bfm bfm;
 
    byte         unsigned        A;
    byte         unsigned        B;
@@ -37,6 +35,8 @@ class coverage extends uvm_component;
          bins twoops[] = ([add_op:mul_op] [* 2]);
          bins manymult = (mul_op [* 3:5]);
 
+         bins rstmulrst   = (rst_op => mul_op [=  2] => rst_op);
+         bins rstmulrstim = (rst_op => mul_op [-> 2] => rst_op);
 
       }
 
@@ -101,21 +101,13 @@ endgroup
       zeros_or_ones_on_ops = new();
    endfunction : new
 
-   function void build_phase(uvm_phase phase);
-      if(!uvm_config_db #(virtual tinyalu_bfm)::get(null, "*","bfm", bfm))
-	$fatal("Failed to get BFM");
-   endfunction : build_phase
-
-   task run_phase(uvm_phase phase);
-      forever begin  : sampling_block
-         @(negedge bfm.clk);
-         A = bfm.A;
-         B = bfm.B;
-         op_set = bfm.op_set;
+   function void write(command_s t);
+         A = t.A;
+         B = t.B;
+         op_set = t.op;
          op_cov.sample();
          zeros_or_ones_on_ops.sample();
-      end : sampling_block
-   endtask : run_phase
+   endfunction : write
 
 endclass : coverage
 
