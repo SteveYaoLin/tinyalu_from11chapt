@@ -23,6 +23,7 @@ package tinyalu_pkg;
                           xor_op = 3'b011,
                           mul_op = 3'b100,
                           rst_op = 3'b111} operation_t;
+
    
 
    typedef struct {
@@ -36,9 +37,10 @@ package tinyalu_pkg;
 
 `include "coverage.svh"
 `include "base_tester.svh"
-`include  "random_tester.svh"
+`include "random_tester.svh"
 `include "add_tester.svh"   
 `include "scoreboard.svh"
+`include "driver.svh"
 `include "command_monitor.svh"
 `include "result_monitor.svh"
    
