@@ -15,9 +15,6 @@
 */
 interface tinyalu_bfm;
    import tinyalu_pkg::*;
-   
-   command_monitor command_monitor_h;
-   result_monitor  result_monitor_h;
 
    byte         unsigned        A;
    byte         unsigned        B;
@@ -30,8 +27,6 @@ interface tinyalu_bfm;
    operation_t  op_set;
 
 
-   
-   
    assign op = op_set;
 
    task reset_alu();
@@ -71,29 +66,53 @@ interface tinyalu_bfm;
       end // else: !if(iop == rst_op)
       
    endtask : send_op
+   
+   command_monitor command_monitor_h;
+
+   function operation_t op2enum();
+      case(op)
+        3'b000 : return no_op;
+        3'b001 : return add_op;
+        3'b010 : return and_op;
+        3'b011 : return xor_op;
+        3'b100 : return mul_op;
+        default : $fatal("Illegal operation on op bus");
+      endcase // case (op)
+   endfunction : op2enum
 
 
-   always @(posedge clk) begin : cmd_monitor
-      bit new_command;
-      if (!start) 
-        new_command = 1;
-      else
-        if (new_command) begin 
-           command_monitor_h.write_to_monitor(A, B, op);
-           new_command = (op == 3'b000); // handle no_op
-        end 
-   end : cmd_monitor
+   always @(posedge clk) begin : op_monitor
+      static bit in_command = 0;
+      command_s command;
+      if (start) begin : start_high
+        if (!in_command) begin : new_command
+           command.A  = A;
+           command.B  = B;
+           command.op = op2enum();
+           command_monitor_h.write_to_monitor(command);
+           in_command = (command.op != no_op);
+        end : new_command
+      end : start_high
+      else // start low
+        in_command = 0;
+   end : op_monitor
 
    always @(negedge reset_n) begin : rst_monitor
+      command_s command;
+      command.op = rst_op;
       if (command_monitor_h != null) //guard against VCS time 0 negedge
-         command_monitor_h.write_to_monitor(A, B, rst_op);
+        command_monitor_h.write_to_monitor(command);
    end : rst_monitor
    
+   result_monitor  result_monitor_h;
 
-   always @(posedge clk) begin : rslt_monitor
+   initial begin : result_monitor_thread
+      forever begin
+         @(posedge clk) ;
          if (done) 
            result_monitor_h.write_to_monitor(result);
-   end : rslt_monitor
+      end
+   end : result_monitor_thread
    
 
    initial begin
