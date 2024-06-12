@@ -13,34 +13,47 @@
    See the License for the specific language governing permissions and
    limitations under the License.
 */
-class driver extends uvm_component;
-   `uvm_component_utils(driver)
+class tester extends uvm_component;
+   `uvm_component_utils (tester)
 
-   virtual tinyalu_bfm bfm;
-
-   uvm_get_port #(command_transaction) command_port;
+   uvm_put_port #(command_transaction) command_port;
 
    function new (string name, uvm_component parent);
       super.new(name, parent);
    endfunction : new
-   
+
    function void build_phase(uvm_phase phase);
-      if(!uvm_config_db #(virtual tinyalu_bfm)::get(null, "*","bfm", bfm))
-        `uvm_fatal("DRIVER", "Failed to get BFM")
-      command_port = new("command_port",this);
+      command_port = new("command_port", this);
    endfunction : build_phase
 
    task run_phase(uvm_phase phase);
-      byte         unsigned        iA;
-      byte         unsigned        iB;
-      operation_t                  op_set;
-      shortint     result;
-      command_transaction    command;
-      forever begin : command_loop
-         command_port.get(command);
-         bfm.send_op(command.A, command.B, command.op, result);
-      end : command_loop
+      command_transaction  command;
+
+      phase.raise_objection(this);
+
+      command = new("command");
+      command.op = rst_op;
+      command_port.put(command);
+
+      repeat (10) begin
+         command = command_transaction::type_id::create("command");
+         assert(command.randomize());
+         command_port.put(command);
+      end
+
+      command = new("command");
+      command.op = mul_op;
+      command.A = 8'hFF;
+      command.B = 8'hFF;
+      command_port.put(command);
+
+      #500;
+      phase.drop_objection(this);
    endtask : run_phase
-   
-   
-endclass : driver
+endclass : tester
+
+
+
+
+
+

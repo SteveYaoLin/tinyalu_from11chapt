@@ -13,18 +13,13 @@
    See the License for the specific language governing permissions and
    limitations under the License.
 */
-class random_test extends uvm_test;
-   `uvm_component_utils(random_test);
+class add_transaction extends command_transaction;
+   `uvm_object_utils(add_transaction)
 
-   env       env_h;
-   
-   function new (string name, uvm_component parent);
-      super.new(name,parent);
-   endfunction : new
+   constraint add_only {op == add_op;}
 
-   function void build_phase(uvm_phase phase);
-      env_h = env::type_id::create("env",this);
-   endfunction : build_phase
+   function new(string name="");super.new(name);endfunction
+endclass : add_transaction
 
-endclass
-   
+      
+        

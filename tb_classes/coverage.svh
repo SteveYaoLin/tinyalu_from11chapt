@@ -13,8 +13,9 @@
    See the License for the specific language governing permissions and
    limitations under the License.
 */
-class coverage extends uvm_subscriber #(command_s);
+class coverage extends uvm_subscriber #(command_transaction);
    `uvm_component_utils(coverage)
+
 
    byte         unsigned        A;
    byte         unsigned        B;
@@ -101,7 +102,9 @@ endgroup
       zeros_or_ones_on_ops = new();
    endfunction : new
 
-   function void write(command_s t);
+
+
+   function void write(command_transaction t);
          A = t.A;
          B = t.B;
          op_set = t.op;

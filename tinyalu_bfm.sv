@@ -39,7 +39,7 @@ interface tinyalu_bfm;
    
 
 
-   task send_op(input byte iA, input byte iB, input operation_t iop, shortint result);
+   task send_op(input byte iA, input byte iB, input operation_t iop, output shortint alu_result);
       if (iop == rst_op) begin
          @(posedge clk);
          reset_n = 1'b0;
@@ -62,6 +62,7 @@ interface tinyalu_bfm;
               @(negedge clk);
             while (done == 0);
             start = 1'b0;
+            alu_result = result;
          end
       end // else: !if(iop == rst_op)
       
@@ -83,14 +84,11 @@ interface tinyalu_bfm;
 
    always @(posedge clk) begin : op_monitor
       static bit in_command = 0;
-      command_s command;
+      command_transaction command;
       if (start) begin : start_high
         if (!in_command) begin : new_command
-           command.A  = A;
-           command.B  = B;
-           command.op = op2enum();
-           command_monitor_h.write_to_monitor(command);
-           in_command = (command.op != no_op);
+           command_monitor_h.write_to_monitor(A, B, op2enum());
+           in_command = (op2enum() != no_op);
         end : new_command
       end : start_high
       else // start low
@@ -98,20 +96,19 @@ interface tinyalu_bfm;
    end : op_monitor
 
    always @(negedge reset_n) begin : rst_monitor
-      command_s command;
-      command.op = rst_op;
+      command_transaction command;
       if (command_monitor_h != null) //guard against VCS time 0 negedge
-        command_monitor_h.write_to_monitor(command);
+        command_monitor_h.write_to_monitor($random,0,rst_op);
    end : rst_monitor
    
    result_monitor  result_monitor_h;
 
    initial begin : result_monitor_thread
-      forever begin
+      forever begin : result_monitor
          @(posedge clk) ;
          if (done) 
            result_monitor_h.write_to_monitor(result);
-      end
+      end : result_monitor
    end : result_monitor_thread
    
 
@@ -124,4 +121,4 @@ interface tinyalu_bfm;
    end
 
 
-endinterface : tinyalu_bfm
+endinterface: tinyalu_bfm
